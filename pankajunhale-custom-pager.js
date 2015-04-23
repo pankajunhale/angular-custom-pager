@@ -1,5 +1,83 @@
+angular.module('custom-pager', ['ng']).run(['$templateCache', function ($templateCache) {
+    var self = {};
+    self.ngStyle = function () {
+        
+        var data = [];
+        data[data.length] = "ng-style=myStyle={'background-color':pageBlock.ThemeStyle.BackgroundColor,'color':pageBlock.ThemeStyle.Color,'border':pageBlock.ThemeStyle.Border,'margin-left':pageBlock.ThemeStyle.MarginLeft,'border-radius':pageBlock.ThemeStyle.BorderRadius} ";
+        return data.join("");
+    };
+    
 
-angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeout', function ($sce, $timeout, $watch) {
+    var html = [];
+    html[html.length] = '<div ng-show="ShowPager" >';
+    html[html.length] = '<div my-theme="options.Theme">';
+    html[html.length] = '<div ng-repeat="pageBlock in Pagination" >';
+    html[html.length] = '<ul class="pagination" ng-show="pageBlock.IsVisible" ' +
+                        'ng-class={"pagination-lg":(options.Type=="lg"),"pagination-sm":(options.Type=="sm")} >';
+    //first...
+    html[html.length] = '<li ng-class="{disabled:(CurrentPageIndex==1)}">';
+    html[html.length] = "<a href='javascript:void(0);' " + self.ngStyle(); 
+
+    html[html.length] = " ng-click='firstPage()'>";
+    html[html.length] = "<span aria-hidden='true'>First</span>";
+    html[html.length] = "</a>";
+    html[html.length] = '</li>';
+    
+    //previous...
+    html[html.length] = '<li ng-class="{disabled:(CurrentPageIndex==1)}">';
+    html[html.length] = "<a href='javascript:void(0);' ";
+    html[html.length] = "<a href='javascript:void(0);' " + self.ngStyle();
+    
+    html[html.length] = "ng-click='previousPage((pageBlock.Index),pageBlock.StartPageNumber);'>";
+    html[html.length] = "<span aria-hidden='true'>« Previous</span>";
+    html[html.length] = "</a>";
+    html[html.length] = '</li>';
+    
+    //pages...
+    html[html.length] = '<li ng-repeat="page in pageBlock.Pages" ng-class="{active:(CurrentPageIndex == page)}">';
+
+    html[html.length] = "<a href='javascript:void(0);' ng-show='CurrentPageIndex != page' " +self.ngStyle();
+    html[html.length] = " ng-click='goToPage(page);'>";
+    html[html.length] = '{{page}}';
+    html[html.length] = "</a>";
+
+    html[html.length] = '<a ng-show="CurrentPageIndex == page" ng-click="return;" ';
+    html[html.length] = "ng-style=myStyle={'background-color':pageBlock.ThemeStyle.Color,";
+    html[html.length] = "'color':pageBlock.ThemeStyle.BackgroundColor,border:pageBlock.ThemeStyle.Border,";
+    html[html.length] = "'margin-left':pageBlock.ThemeStyle.MarginLeft,";
+    html[html.length] = "'border-radius':pageBlock.ThemeStyle.BorderRadius}>";
+    html[html.length] = '{{page}}';
+    html[html.length] = "</a>";
+    
+    html[html.length] = '</li>';
+
+    //next...
+    html[html.length] = '<li ng-class="{disabled:(CurrentPageIndex==pages)}">';
+    html[html.length] = "<a href='javascript:void(0);' ";
+    html[html.length] = self.ngStyle();
+    html[html.length] = "ng-click='nextPage((pageBlock.Index),pageBlock.EndPageNumber);'>";
+    html[html.length] = "<span aria-hidden='true'>Next »</span>";
+    html[html.length] = "</a>";
+    html[html.length] = '</li>';
+    
+    //last...
+    html[html.length] = '<li ng-class="{disabled:(CurrentPageIndex==pages)}">';
+    html[html.length] = "<a href='javascript:void(0);' ";
+    html[html.length] = self.ngStyle();
+    html[html.length] = "ng-click='lastPage()'>";
+    html[html.length] = "<span aria-hidden='true'>Last</span>";
+    html[html.length] = "</a>";
+    html[html.length] = '</li>';
+
+    html[html.length] = '</ul>';    
+    html[html.length] = '</div>';    
+    html[html.length] = '</div>';    
+    html[html.length] = '</div>';
+    console.log(html.join(""));
+    $templateCache.put('pankajunhale-custom-pager.htm', html.join(""));
+    
+}])
+.directive('customPager', ['$sce', '$timeout', '$templateCache', function($sce, $timeout, $templateCache) {
 
     var self = {};
     self.paginationTheme = [
@@ -86,7 +164,7 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
     ];
 
     self.firstPageIndex = 1;
-    self.setPaginationBlockArray = function (options, applyMyStyle, color, bgColor) {
+    self.setPaginationBlockArray = function(options, applyMyStyle, color, bgColor) {
 
         var myPaginationWrapper, start, end, totalPageCount, totalPaginationBlockCount, style;
         var tempArray = [];
@@ -156,20 +234,20 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
         return tempArray;
     };
 
-    self.validateOptions = function (options) {
+    self.validateOptions = function(options) {
 
         if (typeof options.Type !== "undefined") {
 
             switch (options.Type.toUpperCase()) {
-                case 'LG':
-                    options.Type = 'lg';
-                    break;
-                case 'SM':
-                    options.Type = 'sm';
-                    break;
-                default:
-                    options.Type = '';
-                    break;
+            case 'LG':
+                options.Type = 'lg';
+                break;
+            case 'SM':
+                options.Type = 'sm';
+                break;
+            default:
+                options.Type = '';
+                break;
             }
 
         } else {
@@ -184,16 +262,16 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
         console.log(options);
         return options;
     };
-    self.userResult = function (currentPageIndex) {
+    self.userResult = function(currentPageIndex) {
         var data = {
             CurrentPageIndex: currentPageIndex
         };
         return data;
     };
-    self.getTheme = function (theme) {
+    self.getTheme = function(theme) {
         var data;
         var isThemeExist = false;
-        angular.forEach(self.paginationTheme, function (item) {
+        angular.forEach(self.paginationTheme, function(item) {
             if (item.Name.toUpperCase() == theme.toUpperCase()) {
                 isThemeExist = true;
                 data = item.Style;
@@ -204,9 +282,9 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
         }
         return data;
     };
-    self.getDefaultTheme = function () {
+    self.getDefaultTheme = function() {
         var data;
-        angular.forEach(self.paginationTheme, function (item) {
+        angular.forEach(self.paginationTheme, function(item) {
             if (item.Name.toUpperCase() == "DEFAULT") {
                 data = item.Style;
             }
@@ -221,7 +299,9 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
             color: '@',
             bgColor: '@'
         },
-        link: function ($scope, element, attrs) {
+        //template: $templateCache.get('pankajunhale-custom-pager.htm'),
+
+        link: function($scope, element, attrs) {
             var scope = $scope;
             scope.ShowPager = false;
             scope.Pagination = [];
@@ -231,15 +311,16 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
             scope.previousPageButtonVisible = false;
             scope.nextPageButtonVisible = true;
             var options = scope.options;
-
+            
 
             //methods
-            scope.init = function () {
+            scope.init = function() {
                 //validated otpions
+                console.log('init...');
                 options = self.validateOptions(options);
                 //set pagination array
                 scope.Pagination = self.setPaginationBlockArray(options, scope.applyStyle, scope.color, scope.bgColor);
-                angular.forEach(scope.Pagination, function (item) {
+                angular.forEach(scope.Pagination, function(item) {
                     scope.pages = scope.pages + item.Pages.length;
                     scope.totalPageBlocks = scope.totalPageBlocks + 1;
                 });
@@ -247,24 +328,25 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
                 console.log('Data:', angular.toJson(scope.Pagination), 'Pages:', scope.pages, 'PageBlocks:', scope.totalPageBlocks, 'Show:', scope.ShowPager, 'applyCustomStyle', scope.applyStyle);
             };
             //DOM Ready
-            angular.element(document).ready(function () {
-                scope.init();
+            angular.element(document).ready(function() {
+                //scope.init();
             });
-            scope.firstPage = function () {
+            scope.init();
+            scope.firstPage = function() {
                 if (scope.CurrentPageIndex != 1) {
                     scope.CurrentPageIndex = 1;
                     scope.displayCurrentPageBlock(0);
                     options.Callback(self.userResult(scope.CurrentPageIndex));
                 }
             };
-            scope.lastPage = function () {
+            scope.lastPage = function() {
                 if (scope.CurrentPageIndex != scope.pages) {
                     scope.CurrentPageIndex = scope.pages;
                     scope.displayCurrentPageBlock(scope.totalPageBlocks - 1);
                     options.Callback(self.userResult(scope.CurrentPageIndex));
                 }
             };
-            scope.nextPage = function (pageBlockIndex, endPageNumber) {
+            scope.nextPage = function(pageBlockIndex, endPageNumber) {
 
                 if (scope.CurrentPageIndex == scope.pages)
                     return false;
@@ -277,7 +359,7 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
 
                 options.Callback(self.userResult(scope.CurrentPageIndex));
             };
-            scope.previousPage = function (pageBlockIndex, startPageNumber) {
+            scope.previousPage = function(pageBlockIndex, startPageNumber) {
 
                 if (pageBlockIndex == 0 && scope.CurrentPageIndex == self.firstPageIndex)
                     return false;
@@ -294,7 +376,7 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
 
                 options.Callback(self.userResult(scope.CurrentPageIndex));
             };
-            scope.goToPage = function (page) {
+            scope.goToPage = function(page) {
                 scope.CurrentPageIndex = page;
 
                 if (scope.CurrentPageIndex == 1) {
@@ -313,9 +395,9 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
 
             };
 
-            scope.displayCurrentPageBlock = function (pageBlockIndex) {
+            scope.displayCurrentPageBlock = function(pageBlockIndex) {
 
-                angular.forEach(scope.Pagination, function (item, index) {
+                angular.forEach(scope.Pagination, function(item, index) {
                     if (pageBlockIndex == index)
                         item.IsVisible = true;
                     else
@@ -323,10 +405,10 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
                 });
             };
 
-            scope.reloadPager = function () {
+            scope.reloadPager = function() {
                 console.log('reloading pager');
             };
-            scope.$watch('options', function (newValue, oldValue) {
+            scope.$watch('options', function(newValue, oldValue) {
                 if (newValue != oldValue) {
                     scope.totalPageBlocks = 0;
                     scope.pages = 0;
@@ -335,6 +417,10 @@ angular.module('custom-pager', ['ng']).directive('customPager', ['$sce', '$timeo
                 }
             }, true);
         },
-        templateUrl: '../Templates/MyPagerControl.html'
+        template: function(element, attrs) {
+            element.html($templateCache.get('pankajunhale-custom-pager.htm'));
+        }
     };
 }]);
+    
+
